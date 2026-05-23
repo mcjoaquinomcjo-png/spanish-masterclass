@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Spanish Grammar Masterclass — Gramática Intermedia</title>
+    <meta name="description" content="Interactive Spanish grammar learning app covering 20 chapters of intermediate grammar with lessons, exercises, and answer keys. Practice Makes Perfect." />
+    <meta name="theme-color" content="#6366f1" />
+    
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:title" content="Spanish Grammar Masterclass" />
+    <meta property="og:description" content="Master intermediate Spanish grammar with interactive lessons, exercises, and instant feedback across 20 comprehensive chapters." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_ES" />
+    <meta name="twitter:card" content="summary_large_image" />
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+    
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <!-- App Shell Layout -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+          <div class="brand">
+            <span class="material-icons-round brand-icon">school</span>
+            <h2>Español</h2>
+          </div>
+          <p class="subtitle">Gramática Intermedia</p>
+        </div>
+
+        <div class="search-box">
+          <span class="material-icons-round search-icon">search</span>
+          <input type="text" id="chapter-search" placeholder="Buscar temas..." />
+          <button id="clear-search" class="clear-btn" style="display: none;">
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-info">
+            <span>Progreso General</span>
+            <span id="overall-percentage">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="overall-progress-bar" class="progress-bar" style="width: 0%"></div>
+          </div>
+          <div class="progress-stats">
+            <span id="chapters-completed-count">0 de 20 capítulos</span>
+            <button id="reset-progress" class="reset-link" title="Restablecer progreso">
+              <span class="material-icons-round">refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <nav class="chapters-list" id="chapters-nav-list">
+          <!-- Chapters items will be rendered dynamically here -->
+          <div class="loading-placeholder">Cargando capítulos...</div>
+        </nav>
+      </aside>
+
+      <!-- Sidebar Overlay for mobile -->
+      <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+      <main class="main-content">
+        <header class="app-header">
+          <div class="header-left">
+            <button id="toggle-sidebar" class="icon-btn mobile-only" aria-label="Toggle Sidebar">
+              <span class="material-icons-round">menu</span>
+            </button>
+            <div class="chapter-title-area">
+              <span class="chapter-number-badge" id="header-chapter-num">Capítulo 01</span>
+              <h1 id="header-chapter-title">Cargando capítulo...</h1>
+            </div>
+          </div>
+
+          <div class="header-right">
+            <button id="mark-completed-btn" class="completed-toggle-btn">
+              <span class="material-icons-round status-icon">check_circle_outline</span>
+              <span>Marcar como estudiado</span>
+            </button>
+            <div class="theme-toggle">
+              <button id="theme-toggle-btn" class="icon-btn" aria-label="Toggle Theme">
+                <span class="material-icons-round theme-icon">light_mode</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Chapter Navigation Tabs -->
+        <div class="tabs-bar">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="learn">
+              <span class="material-icons-round">local_library</span>
+              <span>Aprender (Lección)</span>
+            </button>
+            <button class="tab-btn" data-tab="practice">
+              <span class="material-icons-round">draw</span>
+              <span>Practicar (Ejercicios)</span>
+            </button>
+            <button class="tab-btn" data-tab="answers">
+              <span class="material-icons-round">fact_check</span>
+              <span>Solucionario (Respuestas)</span>
+            </button>
+          </div>
+
+          <div class="nav-controls">
+            <button id="prev-chapter" class="nav-btn" disabled>
+              <span class="material-icons-round">chevron_left</span>
+              <span>Anterior</span>
+            </button>
+            <button id="next-chapter" class="nav-btn">
+              <span>Siguiente</span>
+              <span class="material-icons-round">chevron_right</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable content area -->
+        <div class="content-viewport" id="content-viewport">
+          <div id="tab-content-learn" class="tab-pane active">
+            <!-- Render chapter discussion text -->
+          </div>
+          <div id="tab-content-practice" class="tab-pane">
+            <!-- Render chapter assessments -->
+          </div>
+          <div id="tab-content-answers" class="tab-pane">
+            <!-- Render answers -->
+          </div>
+        </div>
+      </main>
+
+      <!-- Special Characters Spanish Accent Toolbar -->
+      <div id="accent-toolbar" class="accent-toolbar">
+        <span class="toolbar-label">Acentos:</span>
+        <div class="accent-keys">
+          <button class="accent-key">á</button>
+          <button class="accent-key">é</button>
+          <button class="accent-key">í</button>
+          <button class="accent-key">ó</button>
+          <button class="accent-key">ú</button>
+          <button class="accent-key">ñ</button>
+          <button class="accent-key">ü</button>
+          <button class="accent-key">¡</button>
+          <button class="accent-key">¿</button>
+          <button class="accent-key" data-case="caps">MAYÚS</button>
+        </div>
+        <button id="close-toolbar-btn" class="close-toolbar">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -696,6 +696,7 @@ html.dark .discussion-block {
   overflow: hidden;
   box-shadow: none;
   border: 1px solid var(--border);
+  table-layout: fixed;
 }
 
 .discussion-block th {
@@ -719,6 +720,8 @@ html.dark .discussion-block {
   color: var(--text-primary);
   text-align: left;
   vertical-align: middle;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .discussion-block tr:last-child td {
@@ -760,9 +763,9 @@ html.dark .discussion-block {
 .english-text {
   color: var(--text-muted);
   flex: 1;
-  text-align: right;
+  text-align: left;
   font-style: italic;
-  min-width: 150px;
+  min-width: 140px;
 }
 
 /* =========================

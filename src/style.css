@@ -7,86 +7,82 @@
    Design System & Variables
    ========================= */
 :root {
-  /* Accent palette — VS Code blue */
-  --hue: 209;
-  --accent: #007acc;
-  --accent-hover: #1177bb;
-  --accent-soft: hsl(209, 55%, 20%);
-  --accent-soft-hover: hsl(209, 55%, 25%);
-  --accent-text: #9cdcfe;
+  /* Accent palette — Google Aesthetic */
+  --hue: 217;
+  --accent: #1a73e8;
+  --accent-hover: #1557b0;
+  --accent-soft: #e8f0fe;
+  --accent-soft-hover: #d2e3fc;
+  --accent-text: #174ea6;
 
-  /* Semantic colors — VS Code style */
-  --success: #4ec9b0;
-  --success-light: hsl(168, 34%, 15%);
-  --success-text: #4ec9b0;
-  --error: #f48771;
-  --error-light: hsl(6, 68%, 20%);
-  --error-text: #f48771;
-  --warning: #dcdcaa;
+  /* Semantic colors */
+  --success: #188038;
+  --success-light: #e6f4ea;
+  --success-text: #137333;
+  --error: #d93025;
+  --error-light: #fce8e6;
+  --error-text: #c5221f;
+  --warning: #f29900;
 
   /* Light Theme */
   --bg-primary: #ffffff;
-  --bg-secondary: #f7f9fc;
-  --bg-tertiary: #edf1f7;
-  --text-primary: #1f2937;
-  --text-secondary: #4b5563;
-  --text-muted: #6b7280;
-  --border: rgba(17, 24, 39, 0.12);
-  --shadow: 0 1px 2px rgba(17, 24, 39, 0.06), 0 6px 20px rgba(17, 24, 39, 0.08);
-  --shadow-lg: 0 8px 24px rgba(17, 24, 39, 0.12), 0 2px 8px rgba(17, 24, 39, 0.06);
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #f1f3f4;
+  --text-primary: #202124;
+  --text-secondary: #5f6368;
+  --text-muted: #80868b;
+  --border: #dadce0;
+  --shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+  --shadow-lg: 0 4px 6px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
 
   --glass-bg: #ffffff;
-  --glass-border: rgba(17, 24, 39, 0.08);
+  --glass-border: #dadce0;
   --card-bg: #ffffff;
-  --accent-soft: hsl(209, 90%, 95%);
-  --accent-soft-hover: hsl(209, 90%, 92%);
-  --accent-text: #005a94;
-  --success-light: hsl(168, 58%, 93%);
-  --success-text: #0f766e;
-  --error-light: hsl(6, 92%, 94%);
-  --error-text: #b42318;
-  --warning: #b45309;
 
   /* Typography */
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --font-sans: 'Inter', 'Google Sans', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --font-display: 'Outfit', 'Google Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 
   /* Layout tokens */
   --sidebar-width: 280px;
-  --header-height: 48px;
-  --radius-sm: 3px;
-  --radius-md: 4px;
-  --radius-lg: 4px;
-  --radius-xl: 4px;
-  --transition: color 0.15s ease-out, background-color 0.15s ease-out;
+  --header-height: 56px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --transition: color 0.15s ease-out, background-color 0.15s ease-out, box-shadow 0.15s ease-out;
 }
 
 /* =========================
-   Dark Theme — VS Code dark
+   Dark Theme — Google Dark
    ========================= */
 html.dark {
-  --bg-primary: #1e1e1e;
-  --bg-secondary: #252526;
-  --bg-tertiary: #2d2d30;
-  --text-primary: #e0e0e0;
-  --text-secondary: #b0b0b0;
-  --text-muted: #858585;
-  --border: rgba(255, 255, 255, 0.1);
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --bg-primary: #202124;
+  --bg-secondary: #303134;
+  --bg-tertiary: #3c4043;
+  --text-primary: #e8eaed;
+  --text-secondary: #9aa0a6;
+  --text-muted: #80868b;
+  --border: #5f6368;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
+  --shadow-lg: 0 4px 6px 0 rgba(0,0,0,0.3), 0 4px 8px 3px rgba(0,0,0,0.15);
 
-  --accent-soft: hsl(209, 40%, 20%);
-  --accent-soft-hover: hsl(209, 45%, 25%);
-  --accent-text: #9cdcfe;
+  --accent: #8ab4f8;
+  --accent-hover: #aecbfa;
+  --accent-soft: rgba(138, 180, 248, 0.12);
+  --accent-soft-hover: rgba(138, 180, 248, 0.24);
+  --accent-text: #8ab4f8;
 
-  --success-light: hsl(168, 34%, 15%);
-  --success-text: #4ec9b0;
-  --error-light: hsl(6, 68%, 20%);
-  --error-text: #f48771;
+  --success: #81c995;
+  --success-light: rgba(129, 201, 149, 0.12);
+  --success-text: #81c995;
+  --error: #f28b82;
+  --error-light: rgba(242, 139, 130, 0.12);
+  --error-text: #f28b82;
 
-  --glass-bg: rgba(30, 30, 30, 1);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --card-bg: #252526;
+  --glass-bg: rgba(32, 33, 36, 1);
+  --glass-border: #5f6368;
+  --card-bg: #303134;
 }
 
 /* =========================
@@ -243,62 +239,6 @@ button {
   color: var(--text-primary);
 }
 
-/* =========================
-   Progress Section
-   ========================= */
-.progress-section {
-  padding: 8px 12px;
-  background-color: transparent;
-  border-radius: 3px;
-  margin: 0 12px 8px 12px;
-  border: 1px solid var(--border);
-}
-
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 4px;
-}
-
-.progress-bar-container {
-  height: 4px;
-  background-color: var(--bg-tertiary);
-  border-radius: 100px;
-  overflow: hidden;
-  margin-bottom: 4px;
-}
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), hsl(calc(var(--hue) + 25), 80%, 68%));
-  border-radius: 100px;
-  transition: width 0.5s ease;
-}
-
-.progress-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-.reset-link {
-  display: flex;
-  align-items: center;
-  color: var(--text-muted);
-}
-
-.reset-link:hover {
-  color: var(--error);
-}
-
-.reset-link span {
-  font-size: 16px;
-}
 
 /* =========================
    Chapters Navigation List
@@ -356,16 +296,6 @@ button {
   padding-left: 8px;
 }
 
-.chapter-item.completed::after {
-  content: "";
-  position: absolute;
-  right: 14px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--success);
-  box-shadow: 0 0 8px hsla(152, 68%, 44%, 0.4);
-}
 
 .chapter-item-num {
   font-family: var(--font-display);
@@ -440,26 +370,6 @@ button {
   margin-top: 0px;
 }
 
-.chapter-lock-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  margin-top: 1px;
-  font-weight: 600;
-}
-
-.chapter-lock-status .material-icons-round {
-  font-size: 14px;
-}
-
-.chapter-lock-status.unlocked {
-  color: var(--success);
-}
-
-.chapter-lock-status.locked {
-  color: var(--warning);
-}
 
 .header-right {
   display: flex;
@@ -467,36 +377,6 @@ button {
   gap: 10px;
 }
 
-/* Completed toggle — pill button */
-.completed-toggle-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 3px;
-  border: 1px solid var(--border);
-  background-color: transparent;
-  color: var(--text-secondary);
-  font-weight: 600;
-  font-size: 12px;
-  transition: var(--transition);
-}
-
-.completed-toggle-btn:hover {
-  background-color: transparent;
-  color: var(--text-primary);
-}
-
-.completed-toggle-btn.active {
-  background-color: transparent;
-  border-color: var(--success);
-  color: var(--success);
-  box-shadow: none;
-}
-
-.completed-toggle-btn.active .status-icon {
-  color: var(--success);
-}
 
 /* Icon buttons */
 .icon-btn {

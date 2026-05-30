@@ -5,18 +5,12 @@ import chaptersData from './data/chapters.json';
 let currentChapterIndex = 0;
 let activeTab = 'learn'; // 'learn' | 'practice' | 'answers'
 let searchQuery = '';
-let completedChapters = [];
 let exerciseScores = {}; // e.g., { "1.1": { correct: 5, total: 8 } }
 let userAnswers = {}; // e.g., { "1.1": { "1": "yo" } }
-const CHAPTER_UNLOCK_THRESHOLD = 0.75;
-const ENABLE_CHAPTER_LOCKS = false;
 
 // Load Progress from localStorage
 function loadProgress() {
   try {
-    const completed = localStorage.getItem('es_completed_chapters');
-    if (completed) completedChapters = JSON.parse(completed);
-
     const scores = localStorage.getItem('es_exercise_scores');
     if (scores) exerciseScores = JSON.parse(scores);
 
@@ -30,7 +24,6 @@ function loadProgress() {
 // Save Progress to localStorage
 function saveProgress() {
   try {
-    localStorage.setItem('es_completed_chapters', JSON.stringify(completedChapters));
     localStorage.setItem('es_exercise_scores', JSON.stringify(exerciseScores));
     localStorage.setItem('es_user_answers', JSON.stringify(userAnswers));
   } catch (e) {
@@ -372,47 +365,6 @@ function getChapterExercises(chapter) {
   return chapter.sections.filter(section => section.type === 'exercise');
 }
 
-function isChapterPassed(chapterNum) {
-  const chapter = chaptersData.find(ch => ch.number === chapterNum);
-  if (!chapter) return true;
-
-  const exercises = getChapterExercises(chapter);
-  if (exercises.length === 0) return true;
-
-  // A chapter is considered passed only when each exercise is completed
-  // with at least the unlock threshold.
-  return exercises.every(ex => {
-    const score = exerciseScores[ex.id];
-    if (!score || score.total === 0) return false;
-    return (score.correct / score.total) >= CHAPTER_UNLOCK_THRESHOLD;
-  });
-}
-
-function getHighestUnlockedChapterIndex() {
-  let highestUnlockedIndex = 0;
-  for (let i = 1; i < chaptersData.length; i++) {
-    if (isChapterUnlocked(chaptersData[i].number)) {
-      highestUnlockedIndex = i;
-    } else {
-      break;
-    }
-  }
-  return highestUnlockedIndex;
-}
-
-function ensureCurrentChapterIsUnlocked() {
-  const currentChapterNum = chaptersData[currentChapterIndex].number;
-  if (isChapterUnlocked(currentChapterNum)) return;
-  currentChapterIndex = getHighestUnlockedChapterIndex();
-}
-
-// Check if a chapter is unlocked based on previous chapter completion
-function isChapterUnlocked(chapterNum) {
-  if (!ENABLE_CHAPTER_LOCKS) return true;
-  if (chapterNum === 1) return true; // Chapter 1 always unlocked
-  return isChapterPassed(chapterNum - 1);
-}
-
 // Render the entire sidebar menu of chapters
 function renderSidebar() {
   const navList = document.getElementById('chapters-nav-list');
@@ -436,22 +388,16 @@ function renderSidebar() {
   }
   
   filteredChapters.forEach((ch, idx) => {
-    const isCompleted = completedChapters.includes(ch.number);
     const isActive = chaptersData[currentChapterIndex].number === ch.number;
-    const isLocked = !isChapterUnlocked(ch.number);
     
     const item = document.createElement('button');
-    item.className = `chapter-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`;
+    item.className = `chapter-item ${isActive ? 'active' : ''}`;
     item.innerHTML = `
       <span class="chapter-item-num">${ch.number.toString().padStart(2, '0')}</span>
       <span class="chapter-item-title" title="${ch.title}">${ch.title}</span>
     `;
     
     item.addEventListener('click', () => {
-      if (isLocked) {
-        alert('Debes aprobar cada ejercicio del capítulo anterior con al menos un 75% para desbloquear este.');
-        return;
-      }
       // Find the index in the original data array
       const origIndex = chaptersData.findIndex(origCh => origCh.number === ch.number);
       if (origIndex !== -1) {
@@ -465,23 +411,8 @@ function renderSidebar() {
     
     navList.appendChild(item);
   });
-  
-  updateOverallProgress();
 }
 
-function updateOverallProgress() {
-  const percentageLabel = document.getElementById('overall-percentage');
-  const progressBar = document.getElementById('overall-progress-bar');
-  const completedLabel = document.getElementById('chapters-completed-count');
-  
-  const completedCount = completedChapters.length;
-  const totalCount = chaptersData.length;
-  const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-  
-  percentageLabel.textContent = `${percentage}%`;
-  progressBar.style.width = `${percentage}%`;
-  completedLabel.textContent = `${completedCount} de ${totalCount} capítulos`;
-}
 
 // Load and render active chapter details
 function loadChapter() {
@@ -490,37 +421,7 @@ function loadChapter() {
   // Header
   document.getElementById('header-chapter-num').textContent = `Capítulo ${ch.number.toString().padStart(2, '0')}`;
   document.getElementById('header-chapter-title').textContent = ch.title;
-  const lockStatusEl = document.getElementById('chapter-lock-status');
   const isLastChapter = currentChapterIndex === chaptersData.length - 1;
-  if (lockStatusEl) {
-    if (isLastChapter) {
-      lockStatusEl.innerHTML = '<span class="material-icons-round">lock_open</span><span>Ultimo nivel disponible.</span>';
-      lockStatusEl.className = 'chapter-lock-status unlocked';
-    } else {
-      const nextChapter = chaptersData[currentChapterIndex + 1];
-      const nextUnlocked = isChapterUnlocked(nextChapter.number);
-      if (nextUnlocked) {
-        lockStatusEl.innerHTML = `<span class="material-icons-round">lock_open</span><span>Capitulo ${nextChapter.number.toString().padStart(2, '0')} desbloqueado.</span>`;
-        lockStatusEl.className = 'chapter-lock-status unlocked';
-      } else {
-        lockStatusEl.innerHTML = `<span class="material-icons-round">lock</span><span>Capitulo ${nextChapter.number.toString().padStart(2, '0')} bloqueado: aprueba cada ejercicio de este capitulo con al menos ${Math.round(CHAPTER_UNLOCK_THRESHOLD * 100)}%.</span>`;
-        lockStatusEl.className = 'chapter-lock-status locked';
-      }
-    }
-  }
-  
-  // Completed toggle button status
-  const completedBtn = document.getElementById('mark-completed-btn');
-  const isCompleted = completedChapters.includes(ch.number);
-  if (isCompleted) {
-    completedBtn.classList.add('active');
-    completedBtn.querySelector('span:not(.status-icon)').textContent = 'Estudiado';
-    completedBtn.querySelector('.status-icon').textContent = 'check_circle';
-  } else {
-    completedBtn.classList.remove('active');
-    completedBtn.querySelector('span:not(.status-icon)').textContent = 'Marcar como estudiado';
-    completedBtn.querySelector('.status-icon').textContent = 'check_circle_outline';
-  }
   
   // Prev/Next chapter control status
   document.getElementById('prev-chapter').disabled = currentChapterIndex === 0;

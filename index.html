@@ -44,21 +44,6 @@
           </button>
         </div>
 
-        <div class="progress-section">
-          <div class="progress-info">
-            <span>Progreso General</span>
-            <span id="overall-percentage">0%</span>
-          </div>
-          <div class="progress-bar-container">
-            <div id="overall-progress-bar" class="progress-bar" style="width: 0%"></div>
-          </div>
-          <div class="progress-stats">
-            <span id="chapters-completed-count">0 de 20 capítulos</span>
-            <button id="reset-progress" class="reset-link" title="Restablecer progreso">
-              <span class="material-icons-round">refresh</span>
-            </button>
-          </div>
-        </div>
 
         <nav class="chapters-list" id="chapters-nav-list">
           <!-- Chapters items will be rendered dynamically here -->
@@ -78,15 +63,10 @@
             <div class="chapter-title-area">
               <span class="chapter-number-badge" id="header-chapter-num">Capítulo 01</span>
               <h1 id="header-chapter-title">Cargando capítulo...</h1>
-              <p id="chapter-lock-status" class="chapter-lock-status" aria-live="polite"></p>
             </div>
           </div>
 
           <div class="header-right">
-            <button id="mark-completed-btn" class="completed-toggle-btn">
-              <span class="material-icons-round status-icon">check_circle_outline</span>
-              <span>Marcar como estudiado</span>
-            </button>
             <button id="about-btn" class="icon-btn" aria-label="About app">
               <span class="material-icons-round">info</span>
             </button>

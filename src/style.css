@@ -1401,64 +1401,6 @@ html.dark .vocab-box {
     font-size: 13px;
   }
 }
-    font-size: 9px;
-  }
-
-  #header-chapter-title {
-    font-size: 14px;
-  }
-
-  .completed-toggle-btn span:not(.status-icon) {
-    display: none;
-  }
-
-  .completed-toggle-btn {
-    padding: 6px;
-  }
-
-  .tab-btn span:not(.material-icons-round) {
-    display: none;
-  }
-
-  .tab-btn {
-    padding: 5px 10px;
-  }
-
-  .nav-btn span {
-    display: none;
-  }
-
-  .nav-btn {
-    padding: 6px;
-  }
-
-  .translation-example {
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .english-text {
-    text-align: left;
-  }
-
-  .answers-list {
-    grid-template-columns: 1fr;
-  }
-
-  .question-item {
-    padding: 10px 12px;
-  }
-
-  .accent-toolbar {
-    padding: 8px 12px;
-  }
-
-  .accent-key {
-    width: 32px;
-    height: 32px;
-    font-size: 13px;
-  }
-}
 
 /* =========================
    Book Style Paragraphs
@@ -1475,32 +1417,6 @@ html.dark .vocab-box {
 
 .book-style-paragraph:first-child {
   text-indent: 0;
-}
-
-/* =========================
-   Locked Chapters
-   ========================= */
-.chapter-item.locked {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background-color: transparent !important;
-}
-
-.chapter-item.locked:hover {
-  background-color: transparent !important;
-  color: var(--text-secondary) !important;
-}
-
-.chapter-item.locked .chapter-item-num {
-  display: none;
-}
-
-.chapter-item.locked::before {
-  content: 'lock';
-  font-family: 'Material Icons Round';
-  font-size: 14px;
-  width: 20px;
-  display: inline-block;
 }
 
 /* =========================

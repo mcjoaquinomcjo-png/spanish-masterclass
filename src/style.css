@@ -603,7 +603,7 @@ html.dark .discussion-block {
 }
 
 /* =========================
-   Tables — Textbook style (horizontal rules only)
+   Tables — Textbook style (no borders)
    ========================= */
 .discussion-block table {
   width: 100%;
@@ -614,8 +614,6 @@ html.dark .discussion-block {
   overflow: hidden;
   box-shadow: none;
   border: none;
-  border-top: 1.5px solid var(--text-primary);
-  border-bottom: 1.5px solid var(--text-primary);
   table-layout: auto;
 }
 
@@ -629,7 +627,8 @@ html.dark .discussion-block {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  border-bottom: 1px solid var(--text-secondary);
+  border: none;
+  border-bottom: none;
   vertical-align: bottom;
 }
 
@@ -670,30 +669,30 @@ html.dark .discussion-block {
 }
 
 /* =========================
-   Translation Examples — Textbook red-bordered box
+   Translation Examples — Textbook columnar style (no red box)
    ========================= */
 .translation-example {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
   align-items: baseline;
   background-color: transparent;
-  border: 1.5px solid #d93025;
-  padding: 10px 16px;
+  border: none;
+  padding: 5px 8px;
   border-radius: 0;
-  margin: 12px 0;
+  margin: 0;
   font-size: 13.5px;
   line-height: 1.8;
   gap: 8px 24px;
 }
 
-/* Group multiple translation rows inside one red box */
+/* Group multiple translation rows — subtle container */
 .translation-group {
-  border: 1.5px solid #d93025;
-  padding: 10px 16px;
+  border: none;
+  padding: 6px 16px 6px 0px;
   margin: 12px 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
 }
 
 .translation-group .translation-example {

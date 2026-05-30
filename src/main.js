@@ -218,8 +218,43 @@ function formatLessonHTML(rawText) {
   let tableRows = [];
   let paragraphBuffer = []; // Collect consecutive plain lines into one <p>
   
+  let translationBuffer = []; // Buffer consecutive translation pairs into one group box
+
+  function flushTranslations() {
+    if (translationBuffer.length === 0) return;
+    if (translationBuffer.length === 1) {
+      // Single pair — still wrap in group (red box)
+      const { es, en } = translationBuffer[0];
+      html += `
+      <div class="translation-group">
+        <div class="translation-example">
+          <span class="spanish-text">${es}</span>
+          <span class="english-text">${en}</span>
+          <button class="tts-btn" title="Escuchar pronunciación" data-speak="${es}">
+            <span class="material-icons-round">volume_up</span>
+          </button>
+        </div>
+      </div>`;
+    } else {
+      html += `<div class="translation-group">`;
+      translationBuffer.forEach(({ es, en }) => {
+        html += `
+        <div class="translation-example">
+          <span class="spanish-text">${es}</span>
+          <span class="english-text">${en}</span>
+          <button class="tts-btn" title="Escuchar pronunciación" data-speak="${es}">
+            <span class="material-icons-round">volume_up</span>
+          </button>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+    translationBuffer = [];
+  }
+
   function flushParagraph() {
     if (paragraphBuffer.length > 0) {
+      flushTranslations();
       html += `<p class="book-style-paragraph">${paragraphBuffer.join(' ')}</p>`;
       paragraphBuffer = [];
     }
@@ -237,6 +272,7 @@ function formatLessonHTML(rawText) {
     // Skip empty lines (flush any accumulated paragraph)
     if (!line) {
       flushParagraph();
+      flushTranslations();
       if (inList) { html += '</ul>'; inList = false; }
       if (inTable) { html += renderTable(tableRows); inTable = false; tableRows = []; }
       continue;
@@ -257,6 +293,7 @@ function formatLessonHTML(rawText) {
     
     if (tableRowRegex.test(line) || isTableHeader || looksLikePronounTableRow) {
       flushParagraph();
+      flushTranslations();
       if (inList) { html += '</ul>'; inList = false; }
       inTable = true;
       tableRows.push(line);
@@ -272,6 +309,7 @@ function formatLessonHTML(rawText) {
     // Check list item (starts with ◆ or standard bullets)
     if (line.startsWith('◆') || line.startsWith('•') || line.startsWith('-') || line.startsWith('*')) {
       flushParagraph();
+      flushTranslations();
       if (!inList) { html += '<ul>'; inList = true; }
       const content = line.replace(/^[◆•\-*]\s*/, '');
       html += `<li>${content}</li>`;
@@ -288,6 +326,7 @@ function formatLessonHTML(rawText) {
         line.startsWith('Vocabulary') ||
         line.startsWith('Expressions with')) {
       flushParagraph();
+      flushTranslations();
       html += `<h3>${line}</h3>`;
       continue;
     }
@@ -299,14 +338,7 @@ function formatLessonHTML(rawText) {
       const en = parts[1].trim();
       if (!es.toLowerCase().includes('practice makes perfect') && !en.toLowerCase().includes('practice makes perfect')) {
         flushParagraph();
-        html += `
-        <div class="translation-example">
-          <span class="spanish-text">${es}</span>
-          <span class="english-text">${en}</span>
-          <button class="tts-btn" title="Escuchar pronunciación" data-speak="${es}">
-            <span class="material-icons-round">volume_up</span>
-          </button>
-        </div>`;
+        translationBuffer.push({ es, en });
         continue;
       }
     }
@@ -317,24 +349,19 @@ function formatLessonHTML(rawText) {
     if (bilingualPairs.length > 0) {
       flushParagraph();
       bilingualPairs.forEach(pair => {
-        html += `
-        <div class="translation-example">
-          <span class="spanish-text">${pair.es}</span>
-          <span class="english-text">${pair.en}</span>
-          <button class="tts-btn" title="Escuchar pronunciación" data-speak="${pair.es}">
-            <span class="material-icons-round">volume_up</span>
-          </button>
-        </div>`;
+        translationBuffer.push({ es: pair.es, en: pair.en });
       });
       continue;
     }
     
     // Accumulate into paragraph buffer (joins broken lines)
+    flushTranslations();
     paragraphBuffer.push(line);
   }
   
   // Flush any remaining state
   flushParagraph();
+  flushTranslations();
   if (inList) html += '</ul>';
   if (inTable) html += renderTable(tableRows);
   

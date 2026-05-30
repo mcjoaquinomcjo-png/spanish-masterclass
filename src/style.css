@@ -567,11 +567,12 @@ html.dark .discussion-block {
 }
 
 .discussion-block p {
+  font-family: 'Merriweather', 'Georgia', 'Times New Roman', serif;
   font-size: 14px;
-  line-height: 1.75;
+  line-height: 1.85;
   margin: 0;
-  color: var(--text-secondary);
-  text-align: left;
+  color: var(--text-primary);
+  text-align: justify;
   word-spacing: normal;
 }
 
@@ -584,9 +585,10 @@ html.dark .discussion-block {
 
 .discussion-block li {
   margin-bottom: 6px;
+  font-family: 'Merriweather', 'Georgia', 'Times New Roman', serif;
   font-size: 13px;
-  line-height: 1.7;
-  color: var(--text-secondary);
+  line-height: 1.8;
+  color: var(--text-primary);
   text-align: left;
 }
 
@@ -601,87 +603,118 @@ html.dark .discussion-block {
 }
 
 /* =========================
-   Tables — clean with alternating rows
+   Tables — Textbook style (horizontal rules only)
    ========================= */
 .discussion-block table {
   width: 100%;
   border-collapse: collapse;
-  margin: 4px 0;
-  font-size: 13px;
+  margin: 8px 0 16px;
+  font-size: 13.5px;
   border-radius: 0;
   overflow: hidden;
   box-shadow: none;
-  border: 1px solid var(--border);
-  table-layout: fixed;
+  border: none;
+  border-top: 1.5px solid var(--text-primary);
+  border-bottom: 1.5px solid var(--text-primary);
+  table-layout: auto;
 }
 
 .discussion-block th {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  font-family: var(--font-display);
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
   font-weight: 700;
   text-align: left;
-  padding: 10px 14px;
-  font-size: 12px;
+  padding: 6px 16px 6px 8px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid var(--border);
-  vertical-align: middle;
+  letter-spacing: 0.8px;
+  border-bottom: 1px solid var(--text-secondary);
+  vertical-align: bottom;
 }
 
 .discussion-block td {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  background-color: var(--card-bg);
+  padding: 7px 16px 7px 8px;
+  border-bottom: none;
+  background-color: transparent;
+  font-family: 'Merriweather', 'Georgia', serif;
   color: var(--text-primary);
   text-align: left;
-  vertical-align: middle;
+  vertical-align: baseline;
   white-space: normal;
   word-break: break-word;
+  line-height: 1.65;
+}
+
+.discussion-block td em {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.discussion-block td strong {
+  font-weight: 700;
 }
 
 .discussion-block tr:last-child td {
   border-bottom: none;
+  padding-bottom: 8px;
 }
 
+/* No alternating rows — clean textbook look */
 .discussion-block tr:nth-child(even) td {
-  background-color: var(--bg-secondary);
+  background-color: transparent;
 }
 
 .discussion-block tr:hover td {
-  background-color: var(--bg-tertiary);
+  background-color: transparent;
 }
 
 /* =========================
-   Translation Examples
+   Translation Examples — Textbook red-bordered box
    ========================= */
 .translation-example {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: baseline;
   background-color: transparent;
-  border-left: 3px solid var(--accent);
-  padding: 12px 16px;
-  border-radius: 0px;
-  margin: 4px 0;
-  font-size: 13px;
-  line-height: 1.7;
-  gap: 20px;
-  align-items: flex-start;
+  border: 1.5px solid #d93025;
+  padding: 10px 16px;
+  border-radius: 0;
+  margin: 12px 0;
+  font-size: 13.5px;
+  line-height: 1.8;
+  gap: 8px 24px;
+}
+
+/* Group multiple translation rows inside one red box */
+.translation-group {
+  border: 1.5px solid #d93025;
+  padding: 10px 16px;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.translation-group .translation-example {
+  border: none;
+  margin: 0;
+  padding: 4px 0;
 }
 
 .spanish-text {
-  font-weight: 600;
-  color: var(--accent-text);
-  flex: 1;
+  font-family: 'Merriweather', 'Georgia', serif;
+  font-weight: 700;
+  color: var(--text-primary);
   text-align: left;
 }
 
 .english-text {
-  color: var(--text-muted);
-  flex: 1;
+  color: var(--text-secondary);
   text-align: left;
   font-style: italic;
-  min-width: 140px;
+  font-family: 'Merriweather', 'Georgia', serif;
+  font-weight: 400;
 }
 
 /* =========================
@@ -1375,8 +1408,12 @@ html.dark .vocab-box {
   }
 
   .translation-example {
-    flex-direction: column;
-    gap: 4px;
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .translation-group {
+    padding: 8px 12px;
   }
 
   .english-text {
@@ -1407,10 +1444,10 @@ html.dark .vocab-box {
    ========================= */
 .book-style-paragraph {
   font-family: 'Merriweather', 'Georgia', serif;
-  font-size: 15px;
-  line-height: 1.85;
+  font-size: 14px;
+  line-height: 1.9;
   color: var(--text-primary);
-  text-align: left;
+  text-align: justify;
   text-indent: 0;
   margin: 0;
 }

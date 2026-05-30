@@ -8,6 +8,8 @@ let searchQuery = '';
 let completedChapters = [];
 let exerciseScores = {}; // e.g., { "1.1": { correct: 5, total: 8 } }
 let userAnswers = {}; // e.g., { "1.1": { "1": "yo" } }
+const CHAPTER_UNLOCK_THRESHOLD = 0.75;
+const ENABLE_CHAPTER_LOCKS = false;
 
 // Load Progress from localStorage
 function loadProgress() {
@@ -81,9 +83,22 @@ function removeAccents(str) {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+function getAcceptedAnswers(answerText) {
+  if (!answerText) return [];
+
+  // Support datasets that provide multiple valid answers in one field
+  // such as "Nosotros / Nosotras" or "él o ella".
+  return answerText
+    .split(/\s*\/\s*|\s+o\s+|;/i)
+    .map(part => normalizeStr(part))
+    .filter(Boolean);
+}
+
 // Clean residual PDF artifacts from text
 function cleanDisplayText(text) {
   let clean = text;
+  // Remove PDF page markers like "-- 14 of 208 --"
+  clean = clean.replace(/^\s*--\s*\d+\s+of\s+\d+\s*--\s*$/gmi, '');
   // Strip leftover page numbers on own line
   clean = clean.replace(/^\s*\d{1,3}\s*$/gm, '');
   // Strip ·N· chapter markers
@@ -91,15 +106,119 @@ function cleanDisplayText(text) {
   // Strip "Practice Makes Perfect" header lines
   clean = clean.replace(/^.*Practice Makes Perfect.*$/gm, '');
   clean = clean.replace(/^.*Intermediate Spanish Grammar.*$/gm, '');
+  clean = clean.replace(/^This page intentionally left blank$/gmi, '');
+  // Rejoin words split by PDF line-break hyphenation (e.g., con-\ntext)
+  clean = clean.replace(/([A-Za-zÁÉÍÓÚÜÑáéíóúüñ])-\n([A-Za-zÁÉÍÓÚÜÑáéíóúüñ])/g, '$1$2');
   // Collapse excessive blank lines
   clean = clean.replace(/\n{3,}/g, '\n\n');
   return clean.trim();
 }
 
+function normalizeLessonLines(rawLines) {
+  const lines = [];
+  const shouldMerge = (current, next) => {
+    if (!current || !next) return false;
+    if (current.includes('\t') || next.includes('\t')) return false;
+    if (/^[◆•\-*]/.test(next.trim())) return false;
+    if (/^(yo|tú|tu|usted|él\/ella|él|ella|nosotros|nosotras|vosotros|vosotras|ustedes|ellos|ellas)\b/i.test(next.trim())) return false;
+    if (/[:.;!?)]$/.test(current.trim())) return false;
+    return /^[a-záéíóúüñ(]/i.test(next.trim());
+  };
+
+  let i = 0;
+  while (i < rawLines.length) {
+    let line = rawLines[i].trim();
+    if (!line) {
+      lines.push('');
+      i++;
+      continue;
+    }
+
+    while (i + 1 < rawLines.length && shouldMerge(line, rawLines[i + 1])) {
+      line = `${line} ${rawLines[i + 1].trim()}`;
+      i++;
+    }
+
+    lines.push(line);
+    i++;
+  }
+
+  return lines;
+}
+
+function scoreLanguageHints(text, hints) {
+  const lower = text.toLowerCase();
+  let score = 0;
+  hints.forEach(hint => {
+    const escaped = hint.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`\\b${escaped}\\b`, 'i');
+    if (re.test(lower)) score++;
+  });
+  return score;
+}
+
+function detectSentenceLanguage(sentence) {
+  const spanishHints = ['el', 'la', 'los', 'las', 'de', 'y', 'en', 'que', 'no', 'es', 'son', 'yo', 'tu', 'tú', 'usted', 'ustedes', 'ella', 'él', 'nosotros', 'ellas', 'ellos'];
+  const englishHints = ['the', 'and', 'is', 'are', 'to', 'of', 'in', 'now', 'here', 'my', 'your', 'they', 'he', 'she', 'we', 'it'];
+
+  const spanishScore = scoreLanguageHints(sentence, spanishHints);
+  const englishScore = scoreLanguageHints(sentence, englishHints);
+  if (/[áéíóúñ¿¡]/i.test(sentence)) return 'es';
+  if (spanishScore >= englishScore + 1) return 'es';
+  if (englishScore >= spanishScore + 1) return 'en';
+  return 'unknown';
+}
+
+function extractBilingualPairs(line) {
+  if (!line || line.length < 20) return null;
+  const sentences = line.split(/(?<=[.!?])\s+/).filter(Boolean);
+  if (sentences.length < 2) return [];
+
+  const labels = sentences.map(detectSentenceLanguage);
+
+  // Pattern 1: alternating ES/EN sentence-by-sentence
+  const alternatingPairs = [];
+  for (let i = 0; i < sentences.length - 1; i += 2) {
+    const a = labels[i];
+    const b = labels[i + 1];
+    if ((a === 'es' || a === 'unknown') && (b === 'en' || b === 'unknown')) {
+      alternatingPairs.push({ es: sentences[i], en: sentences[i + 1] });
+    } else {
+      alternatingPairs.length = 0;
+      break;
+    }
+  }
+  if (alternatingPairs.length > 0 && alternatingPairs.length * 2 === sentences.length) {
+    return alternatingPairs;
+  }
+
+  // Pattern 2: block of ES sentences followed by block EN sentences
+  for (let splitAt = 1; splitAt < sentences.length; splitAt++) {
+    const leftSentences = sentences.slice(0, splitAt);
+    const rightSentences = sentences.slice(splitAt);
+    if (leftSentences.length === 0 || rightSentences.length === 0) continue;
+
+    const leftLooksSpanish = leftSentences.every((s, idx) => ['es', 'unknown'].includes(labels[idx]));
+    const rightLooksEnglish = rightSentences.every((s, idx) => ['en', 'unknown'].includes(labels[splitAt + idx]));
+    if (!leftLooksSpanish || !rightLooksEnglish) continue;
+
+    if (leftSentences.length === rightSentences.length) {
+      return leftSentences.map((es, idx) => ({ es, en: rightSentences[idx] }));
+    }
+
+    return [{
+      es: leftSentences.join(' ').trim(),
+      en: rightSentences.join(' ').trim(),
+    }];
+  }
+
+  return [];
+}
+
 // Format Lesson Text into Premium HTML (Conjugations, Tables, Lists)
 function formatLessonHTML(rawText) {
   const text = cleanDisplayText(rawText);
-  const lines = text.split('\n');
+  const lines = normalizeLessonLines(text.split('\n'));
   let html = '';
   let inList = false;
   let inTable = false;
@@ -108,9 +227,15 @@ function formatLessonHTML(rawText) {
   
   function flushParagraph() {
     if (paragraphBuffer.length > 0) {
-      html += `<p>${paragraphBuffer.join(' ')}</p>`;
+      html += `<p class="book-style-paragraph">${paragraphBuffer.join(' ')}</p>`;
       paragraphBuffer = [];
     }
+  }
+
+  function isPronounTableLine(line) {
+    const l = line.toLowerCase();
+    if (l.includes('singular') && l.includes('plural')) return true;
+    return /^(yo|tú|tu|usted|ud\.?|él\/ella|él|ella|nosotros|nosotras|vosotros|vosotras|ustedes|uds\.?|ellos|ellas)\b/i.test(line);
   }
   
   for (let i = 0; i < lines.length; i++) {
@@ -127,7 +252,7 @@ function formatLessonHTML(rawText) {
     // Skip residual page numbers or very short numeric-only lines
     if (/^\d{1,3}$/.test(line)) continue;
     
-    // Check if line looks like a conjugation row or table header
+    // Check if line looks like a conjugation/pronoun table row or table header
     const tableRowRegex = /^(yo|tú|usted|él\/ella|nosotros|vosotros|ustedes|ellos\/ellas)\s+(\w+)\s+(\w+)?\s*(\w+)?/i;
     const isTableHeader = line.toLowerCase().includes('to think') || 
                           line.toLowerCase().includes('to love') || 
@@ -135,8 +260,9 @@ function formatLessonHTML(rawText) {
                           line.toLowerCase().includes('to sell') || 
                           line.toLowerCase().includes('to open') ||
                           (line.includes('Singular') && line.includes('Plural'));
+    const looksLikePronounTableRow = isPronounTableLine(line) && (line.includes('\t') || /\s{2,}/.test(line));
     
-    if (tableRowRegex.test(line) || isTableHeader) {
+    if (tableRowRegex.test(line) || isTableHeader || looksLikePronounTableRow) {
       flushParagraph();
       if (inList) { html += '</ul>'; inList = false; }
       inTable = true;
@@ -144,7 +270,7 @@ function formatLessonHTML(rawText) {
       continue;
     }
     
-    if (inTable && !tableRowRegex.test(line) && !isTableHeader) {
+    if (inTable && !tableRowRegex.test(line) && !isTableHeader && !looksLikePronounTableRow) {
       html += renderTable(tableRows);
       inTable = false;
       tableRows = [];
@@ -191,6 +317,24 @@ function formatLessonHTML(rawText) {
         continue;
       }
     }
+
+    // Detect bilingual lines that were collapsed into one sentence block:
+    // "Spanish... English..."
+    const bilingualPairs = extractBilingualPairs(line);
+    if (bilingualPairs.length > 0) {
+      flushParagraph();
+      bilingualPairs.forEach(pair => {
+        html += `
+        <div class="translation-example">
+          <span class="spanish-text">${pair.es}</span>
+          <span class="english-text">${pair.en}</span>
+          <button class="tts-btn" title="Escuchar pronunciación" data-speak="${pair.es}">
+            <span class="material-icons-round">volume_up</span>
+          </button>
+        </div>`;
+      });
+      continue;
+    }
     
     // Accumulate into paragraph buffer (joins broken lines)
     paragraphBuffer.push(line);
@@ -224,6 +368,51 @@ function renderTable(rows) {
   return html;
 }
 
+function getChapterExercises(chapter) {
+  return chapter.sections.filter(section => section.type === 'exercise');
+}
+
+function isChapterPassed(chapterNum) {
+  const chapter = chaptersData.find(ch => ch.number === chapterNum);
+  if (!chapter) return true;
+
+  const exercises = getChapterExercises(chapter);
+  if (exercises.length === 0) return true;
+
+  // A chapter is considered passed only when each exercise is completed
+  // with at least the unlock threshold.
+  return exercises.every(ex => {
+    const score = exerciseScores[ex.id];
+    if (!score || score.total === 0) return false;
+    return (score.correct / score.total) >= CHAPTER_UNLOCK_THRESHOLD;
+  });
+}
+
+function getHighestUnlockedChapterIndex() {
+  let highestUnlockedIndex = 0;
+  for (let i = 1; i < chaptersData.length; i++) {
+    if (isChapterUnlocked(chaptersData[i].number)) {
+      highestUnlockedIndex = i;
+    } else {
+      break;
+    }
+  }
+  return highestUnlockedIndex;
+}
+
+function ensureCurrentChapterIsUnlocked() {
+  const currentChapterNum = chaptersData[currentChapterIndex].number;
+  if (isChapterUnlocked(currentChapterNum)) return;
+  currentChapterIndex = getHighestUnlockedChapterIndex();
+}
+
+// Check if a chapter is unlocked based on previous chapter completion
+function isChapterUnlocked(chapterNum) {
+  if (!ENABLE_CHAPTER_LOCKS) return true;
+  if (chapterNum === 1) return true; // Chapter 1 always unlocked
+  return isChapterPassed(chapterNum - 1);
+}
+
 // Render the entire sidebar menu of chapters
 function renderSidebar() {
   const navList = document.getElementById('chapters-nav-list');
@@ -249,15 +438,20 @@ function renderSidebar() {
   filteredChapters.forEach((ch, idx) => {
     const isCompleted = completedChapters.includes(ch.number);
     const isActive = chaptersData[currentChapterIndex].number === ch.number;
+    const isLocked = !isChapterUnlocked(ch.number);
     
     const item = document.createElement('button');
-    item.className = `chapter-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`;
+    item.className = `chapter-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`;
     item.innerHTML = `
       <span class="chapter-item-num">${ch.number.toString().padStart(2, '0')}</span>
       <span class="chapter-item-title" title="${ch.title}">${ch.title}</span>
     `;
     
     item.addEventListener('click', () => {
+      if (isLocked) {
+        alert('Debes aprobar cada ejercicio del capítulo anterior con al menos un 75% para desbloquear este.');
+        return;
+      }
       // Find the index in the original data array
       const origIndex = chaptersData.findIndex(origCh => origCh.number === ch.number);
       if (origIndex !== -1) {
@@ -296,6 +490,24 @@ function loadChapter() {
   // Header
   document.getElementById('header-chapter-num').textContent = `Capítulo ${ch.number.toString().padStart(2, '0')}`;
   document.getElementById('header-chapter-title').textContent = ch.title;
+  const lockStatusEl = document.getElementById('chapter-lock-status');
+  const isLastChapter = currentChapterIndex === chaptersData.length - 1;
+  if (lockStatusEl) {
+    if (isLastChapter) {
+      lockStatusEl.innerHTML = '<span class="material-icons-round">lock_open</span><span>Ultimo nivel disponible.</span>';
+      lockStatusEl.className = 'chapter-lock-status unlocked';
+    } else {
+      const nextChapter = chaptersData[currentChapterIndex + 1];
+      const nextUnlocked = isChapterUnlocked(nextChapter.number);
+      if (nextUnlocked) {
+        lockStatusEl.innerHTML = `<span class="material-icons-round">lock_open</span><span>Capitulo ${nextChapter.number.toString().padStart(2, '0')} desbloqueado.</span>`;
+        lockStatusEl.className = 'chapter-lock-status unlocked';
+      } else {
+        lockStatusEl.innerHTML = `<span class="material-icons-round">lock</span><span>Capitulo ${nextChapter.number.toString().padStart(2, '0')} bloqueado: aprueba cada ejercicio de este capitulo con al menos ${Math.round(CHAPTER_UNLOCK_THRESHOLD * 100)}%.</span>`;
+        lockStatusEl.className = 'chapter-lock-status locked';
+      }
+    }
+  }
   
   // Completed toggle button status
   const completedBtn = document.getElementById('mark-completed-btn');
@@ -312,7 +524,7 @@ function loadChapter() {
   
   // Prev/Next chapter control status
   document.getElementById('prev-chapter').disabled = currentChapterIndex === 0;
-  document.getElementById('next-chapter').disabled = currentChapterIndex === chaptersData.length - 1;
+  document.getElementById('next-chapter').disabled = isLastChapter;
   
   // Redraw sidebar items to update active styling
   renderSidebar();
@@ -481,52 +693,6 @@ function renderTabContent() {
     // Set up Input Event Listeners
     setupInputs(container);
     
-  } else if (activeTab === 'answers') {
-    // 3. Answers (Answer Key Reference Sheet) Tab Rendering
-    const exercises = ch.sections.filter(s => s.type === 'exercise');
-    if (exercises.length === 0) {
-      container.innerHTML = '<div class="loading-placeholder">No hay solucionario disponible.</div>';
-      return;
-    }
-    
-    const sheet = document.createElement('div');
-    sheet.className = 'answers-sheet';
-    sheet.innerHTML = `<h2>Solucionario del Capítulo ${ch.number}</h2>`;
-    
-    exercises.forEach(ex => {
-      const section = document.createElement('div');
-      section.className = 'answer-section';
-      
-      let listHtml = '<div class="answers-list">';
-      ex.answers.forEach(ans => {
-        listHtml += `
-          <div class="answer-item">
-            <span class="answer-item-num">${ans.num}.</span>
-            <span class="answer-item-text">${ans.text}</span>
-            <button class="tts-btn" title="Escuchar pronunciación" data-speak="${ans.text}">
-              <span class="material-icons-round">volume_up</span>
-            </button>
-          </div>
-        `;
-      });
-      listHtml += '</div>';
-      
-      section.innerHTML = `
-        <span class="answer-section-title">Respuestas Ejercicio ${ex.id}</span>
-        ${listHtml}
-      `;
-      sheet.appendChild(section);
-    });
-    
-    container.appendChild(sheet);
-    
-    // Set up TTS handlers for reference answers
-    container.querySelectorAll('.tts-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        speakSpanish(btn.getAttribute('data-speak'));
-      });
-    });
   }
 }
 
@@ -637,14 +803,15 @@ function checkExerciseAnswers(exId) {
     
     // Normalizations
     const normUser = normalizeStr(userVal);
-    const normCorrect = normalizeStr(correctText);
+    const acceptedAnswers = getAcceptedAnswers(correctText);
+    const acceptedAnswersAccentless = acceptedAnswers.map(answer => removeAccents(answer));
     
-    const isStrictCorrect = normUser === normCorrect;
-    const isAccentLessCorrect = removeAccents(normUser) === removeAccents(normCorrect);
+    const isStrictCorrect = acceptedAnswers.includes(normUser);
+    const isAccentLessCorrect = acceptedAnswersAccentless.includes(removeAccents(normUser));
     
     // Clear old elements
-    const badge = card.querySelector(`#feedback-${exId}-${qNum}`);
-    const paraFeedback = card.querySelector(`#feedback-para-${exId}-${qNum}`);
+    const badge = document.getElementById(`feedback-${exId}-${qNum}`);
+    const paraFeedback = document.getElementById(`feedback-para-${exId}-${qNum}`);
     if (badge) badge.innerHTML = '';
     if (paraFeedback) paraFeedback.innerHTML = '';
     input.className = input.tagName.toLowerCase() === 'textarea' ? 'paragraph-textarea' : 'exercise-input';
@@ -717,6 +884,8 @@ function checkExerciseAnswers(exId) {
   exerciseScores[exId] = { correct: correctCount, total: totalQuestions };
   saveProgress();
   
+  ensureCurrentChapterIsUnlocked();
+
   // If all exercises in chapter are completed, auto mark chapter as completed?
   checkAutoChapterCompletion();
 }
@@ -729,7 +898,7 @@ function checkAutoChapterCompletion() {
   let allMastered = true;
   exercises.forEach(ex => {
     const score = exerciseScores[ex.id];
-    if (!score || score.correct < score.total * 0.8) { // Requires 80%+ to pass
+    if (!score || score.correct < score.total * CHAPTER_UNLOCK_THRESHOLD) {
       allMastered = false;
     }
   });
@@ -796,6 +965,8 @@ function resetExercise(exId) {
   
   delete exerciseScores[exId];
   saveProgress();
+  ensureCurrentChapterIsUnlocked();
+  loadChapter();
 }
 
 // Set up UI Event listeners
@@ -838,6 +1009,7 @@ function setupUIListeners() {
       exerciseScores = {};
       userAnswers = {};
       saveProgress();
+      ensureCurrentChapterIsUnlocked();
       loadChapter();
     }
   });
@@ -863,9 +1035,14 @@ function setupUIListeners() {
   
   document.getElementById('next-chapter').addEventListener('click', () => {
     if (currentChapterIndex < chaptersData.length - 1) {
-      currentChapterIndex++;
-      loadChapter();
-      document.getElementById('content-viewport').scrollTop = 0;
+      const nextCh = chaptersData[currentChapterIndex + 1];
+      if (isChapterUnlocked(nextCh.number)) {
+        currentChapterIndex++;
+        loadChapter();
+        document.getElementById('content-viewport').scrollTop = 0;
+      } else {
+        alert('Debes aprobar cada ejercicio del capítulo actual con al menos 75% para desbloquear el siguiente.');
+      }
     }
   });
   
@@ -902,11 +1079,37 @@ function setupUIListeners() {
     themeIcon.textContent = dark ? 'light_mode' : 'dark_mode';
     localStorage.setItem('theme_dark', dark);
   });
+
+  // About modal
+  const aboutBtn = document.getElementById('about-btn');
+  const aboutModal = document.getElementById('about-modal');
+  const aboutCloseBtn = document.getElementById('about-close-btn');
+
+  const openAbout = () => {
+    aboutModal.classList.add('show');
+    aboutModal.setAttribute('aria-hidden', 'false');
+  };
+  const closeAbout = () => {
+    aboutModal.classList.remove('show');
+    aboutModal.setAttribute('aria-hidden', 'true');
+  };
+
+  aboutBtn.addEventListener('click', openAbout);
+  aboutCloseBtn.addEventListener('click', closeAbout);
+  aboutModal.addEventListener('click', (e) => {
+    if (e.target === aboutModal) closeAbout();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && aboutModal.classList.contains('show')) {
+      closeAbout();
+    }
+  });
 }
 
 // Bootstrap Application
 function init() {
   loadProgress();
+  ensureCurrentChapterIsUnlocked();
   setupUIListeners();
   renderSidebar();
   loadChapter();

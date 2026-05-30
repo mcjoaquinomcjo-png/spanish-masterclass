@@ -20,7 +20,7 @@
     <!-- Premium Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   </head>
@@ -78,6 +78,7 @@
             <div class="chapter-title-area">
               <span class="chapter-number-badge" id="header-chapter-num">Capítulo 01</span>
               <h1 id="header-chapter-title">Cargando capítulo...</h1>
+              <p id="chapter-lock-status" class="chapter-lock-status" aria-live="polite"></p>
             </div>
           </div>
 
@@ -85,6 +86,9 @@
             <button id="mark-completed-btn" class="completed-toggle-btn">
               <span class="material-icons-round status-icon">check_circle_outline</span>
               <span>Marcar como estudiado</span>
+            </button>
+            <button id="about-btn" class="icon-btn" aria-label="About app">
+              <span class="material-icons-round">info</span>
             </button>
             <div class="theme-toggle">
               <button id="theme-toggle-btn" class="icon-btn" aria-label="Toggle Theme">
@@ -103,11 +107,7 @@
             </button>
             <button class="tab-btn" data-tab="practice">
               <span class="material-icons-round">draw</span>
-              <span>Practicar (Ejercicios)</span>
-            </button>
-            <button class="tab-btn" data-tab="answers">
-              <span class="material-icons-round">fact_check</span>
-              <span>Solucionario (Respuestas)</span>
+              <span>Práctica (Ejercicios)</span>
             </button>
           </div>
 
@@ -136,6 +136,46 @@
           </div>
         </div>
       </main>
+
+      <div id="about-modal" class="about-modal" aria-hidden="true">
+        <div class="about-modal-card" role="dialog" aria-modal="true" aria-labelledby="about-title">
+          <div class="about-modal-header">
+            <h2 id="about-title">About</h2>
+            <button id="about-close-btn" class="icon-btn" aria-label="Close About">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+          <div class="about-modal-body">
+            <p><strong>Spanish Masterclass</strong> helps you study intermediate grammar with structured lessons and interactive practice across 20 comprehensive chapters.</p>
+            
+            <div class="about-section">
+              <h3>Working Files</h3>
+              <p><strong>Primary Data:</strong> <code>src/data/chapters.json</code> — Contains all 20 chapters with lessons, exercises, and answer keys.</p>
+              <p><strong>Style System:</strong> <code>src/style.css</code> — Modern iOS-inspired design with VS Code color palette.</p>
+            </div>
+
+            <div class="about-section">
+              <h3>PDF References</h3>
+              <p>Content sourced from intermediate Spanish grammar textbooks covering:</p>
+              <ul class="reference-list">
+                <li>Subject pronouns and present tense</li>
+                <li>Verb conjugations and tenses</li>
+                <li>Grammar structures and syntax</li>
+                <li>Interactive practice exercises</li>
+              </ul>
+            </div>
+
+            <div class="about-section">
+              <h3>Project Information</h3>
+              <p><strong>Created:</strong> May 2026</p>
+              <p><strong>Creator:</strong> Spanish Grammar Masterclass Team</p>
+              <p><strong>Version:</strong> 1.0.0</p>
+              <p><strong>Technology:</strong> Vite + Vanilla JavaScript</p>
+              <p><strong>Storage:</strong> Local browser storage for progress tracking</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Special Characters Spanish Accent Toolbar -->
       <div id="accent-toolbar" class="accent-toolbar">

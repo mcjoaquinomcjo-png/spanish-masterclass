@@ -903,17 +903,7 @@ function setupUIListeners() {
     renderSidebar();
   });
   
-  // Reset progress button
-  document.getElementById('reset-progress').addEventListener('click', () => {
-    if (confirm('¿Estás seguro de que deseas borrar todo tu progreso y respuestas?')) {
-      completedChapters = [];
-      exerciseScores = {};
-      userAnswers = {};
-      saveProgress();
-      ensureCurrentChapterIsUnlocked();
-      loadChapter();
-    }
-  });
+
   
   // Tabs switcher
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -936,31 +926,13 @@ function setupUIListeners() {
   
   document.getElementById('next-chapter').addEventListener('click', () => {
     if (currentChapterIndex < chaptersData.length - 1) {
-      const nextCh = chaptersData[currentChapterIndex + 1];
-      if (isChapterUnlocked(nextCh.number)) {
-        currentChapterIndex++;
-        loadChapter();
-        document.getElementById('content-viewport').scrollTop = 0;
-      } else {
-        alert('Debes aprobar cada ejercicio del capítulo actual con al menos 75% para desbloquear el siguiente.');
-      }
+      currentChapterIndex++;
+      loadChapter();
+      document.getElementById('content-viewport').scrollTop = 0;
     }
   });
   
-  // Mark completed studied button
-  document.getElementById('mark-completed-btn').addEventListener('click', () => {
-    const ch = chaptersData[currentChapterIndex];
-    const isCompleted = completedChapters.includes(ch.number);
-    
-    if (isCompleted) {
-      completedChapters = completedChapters.filter(n => n !== ch.number);
-    } else {
-      completedChapters.push(ch.number);
-    }
-    saveProgress();
-    loadChapter();
-  });
-  
+
   // Light / Dark Theme toggle button
   const themeBtn = document.getElementById('theme-toggle-btn');
   const themeIcon = themeBtn.querySelector('.theme-icon');
@@ -1010,7 +982,6 @@ function setupUIListeners() {
 // Bootstrap Application
 function init() {
   loadProgress();
-  ensureCurrentChapterIsUnlocked();
   setupUIListeners();
   renderSidebar();
   loadChapter();

@@ -40,8 +40,8 @@
   --card-bg: #ffffff;
 
   /* Typography */
-  --font-sans: 'Inter', 'Google Sans', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-  --font-display: 'Outfit', 'Google Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --font-sans: 'Roboto', 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --font-display: 'Roboto', 'Outfit', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 
   /* Layout tokens */
   --sidebar-width: 280px;

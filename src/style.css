@@ -1656,10 +1656,27 @@ html.dark .vocab-box {
 }
 
 /* Tables inside lessons — PDF Textbook Style */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 20px 0;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 4px;
+}
+
 .discussion-block table.grammar-table {
   width: 100%;
+  min-width: 580px;
   border-collapse: collapse;
-  margin: 20px 0;
+  margin: 0;
   font-size: 14px;
   background-color: transparent;
   border-top: 1px solid var(--text-primary);
@@ -1675,25 +1692,26 @@ html.dark .vocab-box {
   letter-spacing: 0.08em;
   color: var(--text-secondary);
   text-transform: uppercase;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--border);
   background-color: transparent;
+  white-space: nowrap;
 }
 
 .discussion-block td.spanish-col {
   font-weight: 600;
   color: var(--text-primary);
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-bottom: none;
-  width: 25%;
+  white-space: nowrap;
 }
 
 .discussion-block td.english-col {
   font-style: italic;
   color: var(--text-secondary);
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-bottom: none;
-  width: 25%;
+  white-space: nowrap;
 }
 
 /* Bullet list — PDF Diamond/Bullet Style */
@@ -1755,6 +1773,7 @@ html.dark .vocab-box {
 
 .vocab-table {
   width: 100%;
+  min-width: 580px;
   border-collapse: collapse;
   font-size: 13px;
   border-top: 1px solid var(--border);
@@ -1770,18 +1789,19 @@ html.dark .vocab-box {
   padding: 8px 10px;
   text-align: left;
   border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 .vocab-table td.spanish-col {
   font-weight: 700;
   color: var(--text-primary);
-  padding: 6px 10px;
-  width: 16%;
+  padding: 8px 12px;
+  white-space: nowrap;
 }
 
 .vocab-table td.english-col {
   font-style: italic;
   color: var(--text-secondary);
-  padding: 6px 10px;
-  width: 16%;
+  padding: 8px 12px;
+  white-space: nowrap;
 }

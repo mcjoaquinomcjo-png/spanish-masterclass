@@ -381,7 +381,7 @@ function formatLessonHTML(rawText) {
 }
 
 function renderTable(rows) {
-  let html = '<table class="grammar-table">';
+  let html = '<div class="table-responsive"><table class="grammar-table">';
   let isFirst = true;
   for (const r of rows) {
     let cols = r.split('\t');
@@ -416,7 +416,7 @@ function renderTable(rows) {
     html += '</tr>';
     isFirst = false;
   }
-  html += '</table>';
+  html += '</table></div>';
   return html;
 }
 

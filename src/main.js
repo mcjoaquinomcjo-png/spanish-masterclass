@@ -210,6 +210,11 @@ function extractBilingualPairs(line) {
 
 // Format Lesson Text into Premium HTML (Conjugations, Tables, Lists)
 function formatLessonHTML(rawText) {
+  if (!rawText) return '';
+  const trimmed = rawText.trim();
+  if (trimmed.startsWith('<')) {
+    return trimmed;
+  }
   const text = cleanDisplayText(rawText);
   const lines = normalizeLessonLines(text.split('\n'));
   let html = '';

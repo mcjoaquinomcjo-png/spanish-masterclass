@@ -1695,3 +1695,93 @@ html.dark .vocab-box {
   border-bottom: none;
   width: 25%;
 }
+
+/* Bullet list — PDF Diamond/Bullet Style */
+.book-bullet-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 16px 0;
+}
+
+.book-bullet-list > li {
+  position: relative;
+  padding-left: 24px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.book-bullet-list > li::before {
+  content: "◆";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  font-size: 10px;
+  color: var(--text-primary);
+}
+
+.sub-example {
+  margin: 8px 0 12px 0;
+}
+
+/* Vocab Box — PDF Textbook Grey Card Callout */
+.vocab-box {
+  margin: 24px 0;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+}
+
+.vocab-header {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
+  padding: 2px 10px;
+  margin-bottom: 12px;
+}
+
+.vocab-intro {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.vocab-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.vocab-table th {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.vocab-table td.spanish-col {
+  font-weight: 700;
+  color: var(--text-primary);
+  padding: 6px 10px;
+  width: 16%;
+}
+
+.vocab-table td.english-col {
+  font-style: italic;
+  color: var(--text-secondary);
+  padding: 6px 10px;
+  width: 16%;
+}

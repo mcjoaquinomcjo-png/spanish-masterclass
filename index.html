@@ -60,6 +60,9 @@
             <button id="toggle-sidebar" class="icon-btn mobile-only" aria-label="Toggle Sidebar">
               <span class="material-icons-round">menu</span>
             </button>
+            <button id="collapse-sidebar-btn" class="icon-btn desktop-only" aria-label="Toggle Sidebar Collapse" title="Minimizar / Expandir panel lateral">
+              <span class="material-icons-round">view_sidebar</span>
+            </button>
             <div class="chapter-title-area">
               <span class="chapter-number-badge" id="header-chapter-num">Capítulo 01</span>
               <h1 id="header-chapter-title">Cargando capítulo...</h1>
@@ -175,6 +178,56 @@
         <button id="close-toolbar-btn" class="close-toolbar">
           <span class="material-icons-round">close</span>
         </button>
+      <!-- Floating Text Selection Popover Toolbar -->
+      <div id="selection-toolbar" class="selection-toolbar" style="display: none;">
+        <div class="color-options">
+          <button class="color-btn color-yellow" data-color="yellow" title="Resaltar amarillo"></button>
+          <button class="color-btn color-green" data-color="green" title="Resaltar verde"></button>
+          <button class="color-btn color-blue" data-color="blue" title="Resaltar azul"></button>
+          <button class="color-btn color-pink" data-color="pink" title="Resaltar rosa"></button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <button id="add-comment-btn" class="toolbar-action-btn">
+          <span class="material-icons-round">add_comment</span>
+          <span>Comentar</span>
+        </button>
+      </div>
+
+      <!-- Comment Card Popover (Google Docs / Sheets Style) -->
+      <div id="comment-popover" class="comment-popover" style="display: none;">
+        <div class="comment-popover-header">
+          <div class="comment-user">
+            <span class="material-icons-round user-icon">account_circle</span>
+            <span class="user-name">Nota de estudio</span>
+          </div>
+          <button id="close-comment-popover" class="icon-btn sm" aria-label="Cerrar nota">
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+
+        <!-- Viewing / Displaying Mode -->
+        <div id="comment-view-mode" class="comment-body">
+          <p id="comment-text-display" class="comment-text-content"></p>
+          <div class="comment-actions">
+            <button id="edit-comment-btn" class="secondary-btn sm">
+              <span class="material-icons-round">edit</span>
+              <span>Editar</span>
+            </button>
+            <button id="delete-comment-btn" class="danger-btn sm">
+              <span class="material-icons-round">delete</span>
+              <span>Eliminar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Creating / Editing Form Mode -->
+        <div id="comment-edit-mode" class="comment-form" style="display: none;">
+          <textarea id="comment-input" placeholder="Escribe tu comentario o nota aquí..." rows="3"></textarea>
+          <div class="form-actions">
+            <button id="cancel-comment-btn" class="secondary-btn sm">Cancelar</button>
+            <button id="save-comment-btn" class="primary-btn sm">Guardar</button>
+          </div>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.js"></script>

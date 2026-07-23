@@ -992,6 +992,18 @@ function setupUIListeners() {
   });
   
 
+  // Sidebar Desktop Collapse toggle
+  const collapseBtn = document.getElementById('collapse-sidebar-btn');
+  if (collapseBtn) {
+    const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
+    if (isCollapsed) sidebar.classList.add('collapsed');
+
+    collapseBtn.addEventListener('click', () => {
+      const collapsed = sidebar.classList.toggle('collapsed');
+      localStorage.setItem('sidebar_collapsed', collapsed);
+    });
+  }
+
   // Light / Dark Theme toggle button
   const themeBtn = document.getElementById('theme-toggle-btn');
   const themeIcon = themeBtn.querySelector('.theme-icon');
@@ -1034,6 +1046,253 @@ function setupUIListeners() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && aboutModal.classList.contains('show')) {
       closeAbout();
+    }
+  });
+
+  // Setup Annotations & Commenting System
+  setupAnnotationSystem();
+}
+
+// Annotations & Google Sheets Style Commenting System
+let userAnnotations = [];
+let pendingSelectionRange = null;
+let activeAnnotationId = null;
+
+function loadAnnotations() {
+  try {
+    const data = localStorage.getItem('es_user_annotations');
+    if (data) userAnnotations = JSON.parse(data);
+  } catch (e) {
+    console.error('Error loading user annotations:', e);
+  }
+}
+
+function saveAnnotations() {
+  try {
+    localStorage.setItem('es_user_annotations', JSON.stringify(userAnnotations));
+  } catch (e) {
+    console.error('Error saving user annotations:', e);
+  }
+}
+
+function setupAnnotationSystem() {
+  loadAnnotations();
+
+  const selectionToolbar = document.getElementById('selection-toolbar');
+  const commentPopover = document.getElementById('comment-popover');
+  const commentInput = document.getElementById('comment-input');
+  const commentTextDisplay = document.getElementById('comment-text-display');
+  const commentViewMode = document.getElementById('comment-view-mode');
+  const commentEditMode = document.getElementById('comment-edit-mode');
+
+  const hideSelectionToolbar = () => {
+    selectionToolbar.style.display = 'none';
+  };
+
+  const hideCommentPopover = () => {
+    commentPopover.style.display = 'none';
+    activeAnnotationId = null;
+  };
+
+  // Text selection listener inside learn tab container
+  const learnContainer = document.getElementById('tab-content-learn');
+  
+  document.addEventListener('mouseup', (e) => {
+    if (selectionToolbar.contains(e.target) || commentPopover.contains(e.target)) return;
+
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed) {
+      hideSelectionToolbar();
+      return;
+    }
+
+    const selectedText = selection.toString().trim();
+    if (selectedText.length < 2) {
+      hideSelectionToolbar();
+      return;
+    }
+
+    // Verify selection is inside learn tab
+    const range = selection.getRangeAt(0);
+    if (!learnContainer.contains(range.commonAncestorContainer)) {
+      hideSelectionToolbar();
+      return;
+    }
+
+    pendingSelectionRange = range.cloneRange();
+    const rect = range.getBoundingClientRect();
+
+    selectionToolbar.style.display = 'flex';
+    selectionToolbar.style.left = `${Math.max(10, rect.left + window.scrollX + rect.width / 2 - 80)}px`;
+    selectionToolbar.style.top = `${Math.max(10, rect.top + window.scrollY - 45)}px`;
+  });
+
+  // Color Highlight Buttons click
+  selectionToolbar.querySelectorAll('.color-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const color = btn.getAttribute('data-color');
+      applyHighlight(color, '');
+      hideSelectionToolbar();
+    });
+  });
+
+  // Add Comment Button click
+  document.getElementById('add-comment-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    hideSelectionToolbar();
+    openCommentEditorForPendingSelection();
+  });
+
+  function applyHighlight(color, commentText) {
+    if (!pendingSelectionRange) return;
+
+    const annotationId = 'ann_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+    const selectedText = pendingSelectionRange.toString();
+
+    const mark = document.createElement('mark');
+    mark.className = `user-highlight highlight-${color} ${commentText ? 'has-comment' : ''}`;
+    mark.setAttribute('data-annotation-id', annotationId);
+
+    try {
+      pendingSelectionRange.surroundContents(mark);
+    } catch (e) {
+      // Fallback if selection spans complex HTML boundaries
+      const fragment = pendingSelectionRange.extractContents();
+      mark.appendChild(fragment);
+      pendingSelectionRange.insertNode(mark);
+    }
+
+    const annotation = {
+      id: annotationId,
+      chapterIndex: currentChapterIndex,
+      color: color,
+      text: selectedText,
+      comment: commentText,
+      createdAt: new Date().toISOString()
+    };
+
+    userAnnotations.push(annotation);
+    saveAnnotations();
+    window.getSelection().removeAllRanges();
+    pendingSelectionRange = null;
+
+    mark.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openCommentPopoverForMark(mark, annotationId);
+    });
+  }
+
+  function openCommentEditorForPendingSelection() {
+    if (!pendingSelectionRange) return;
+    const rect = pendingSelectionRange.getBoundingClientRect();
+
+    commentViewMode.style.display = 'none';
+    commentEditMode.style.display = 'block';
+    commentInput.value = '';
+
+    commentPopover.style.display = 'block';
+    commentPopover.style.left = `${Math.max(10, rect.left + window.scrollX)}px`;
+    commentPopover.style.top = `${rect.bottom + window.scrollY + 10}px`;
+
+    commentInput.focus();
+
+    // Set save handler for new comment
+    document.getElementById('save-comment-btn').onclick = (e) => {
+      e.stopPropagation();
+      const text = commentInput.value.trim();
+      applyHighlight('yellow', text);
+      hideCommentPopover();
+    };
+
+    document.getElementById('cancel-comment-btn').onclick = (e) => {
+      e.stopPropagation();
+      hideCommentPopover();
+    };
+  }
+
+  function openCommentPopoverForMark(mark, annotationId) {
+    const ann = userAnnotations.find(a => a.id === annotationId);
+    if (!ann) return;
+
+    activeAnnotationId = annotationId;
+    const rect = mark.getBoundingClientRect();
+
+    commentPopover.style.display = 'block';
+    commentPopover.style.left = `${Math.max(10, rect.left + window.scrollX)}px`;
+    commentPopover.style.top = `${rect.bottom + window.scrollY + 8}px`;
+
+    if (ann.comment) {
+      // View mode
+      commentViewMode.style.display = 'block';
+      commentEditMode.style.display = 'none';
+      commentTextDisplay.textContent = ann.comment;
+    } else {
+      // Edit mode (adding comment to existing highlight)
+      commentViewMode.style.display = 'none';
+      commentEditMode.style.display = 'block';
+      commentInput.value = '';
+      commentInput.focus();
+    }
+
+    // Edit button click
+    document.getElementById('edit-comment-btn').onclick = (e) => {
+      e.stopPropagation();
+      commentViewMode.style.display = 'none';
+      commentEditMode.style.display = 'block';
+      commentInput.value = ann.comment || '';
+      commentInput.focus();
+    };
+
+    // Save button click
+    document.getElementById('save-comment-btn').onclick = (e) => {
+      e.stopPropagation();
+      ann.comment = commentInput.value.trim();
+      saveAnnotations();
+
+      if (ann.comment) {
+        mark.classList.add('has-comment');
+      } else {
+        mark.classList.remove('has-comment');
+      }
+
+      hideCommentPopover();
+    };
+
+    // Cancel button click
+    document.getElementById('cancel-comment-btn').onclick = (e) => {
+      e.stopPropagation();
+      hideCommentPopover();
+    };
+
+    // Delete comment / highlight button click
+    document.getElementById('delete-comment-btn').onclick = (e) => {
+      e.stopPropagation();
+      // Remove annotation from list
+      userAnnotations = userAnnotations.filter(a => a.id !== annotationId);
+      saveAnnotations();
+
+      // Unwrap mark element
+      const parent = mark.parentNode;
+      while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+      parent.removeChild(mark);
+
+      hideCommentPopover();
+    };
+
+    // Close popover button
+    document.getElementById('close-comment-popover').onclick = (e) => {
+      e.stopPropagation();
+      hideCommentPopover();
+    };
+  }
+
+  // Delegate click on mark elements inside learn container
+  learnContainer.addEventListener('click', (e) => {
+    const mark = e.target.closest('mark.user-highlight');
+    if (mark) {
+      const annId = mark.getAttribute('data-annotation-id');
+      openCommentPopoverForMark(mark, annId);
     }
   });
 }

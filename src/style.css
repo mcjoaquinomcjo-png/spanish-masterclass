@@ -1803,5 +1803,259 @@ html.dark .vocab-box {
   font-style: italic;
   color: var(--text-secondary);
   padding: 8px 12px;
+  border-bottom: none;
   white-space: nowrap;
+}
+
+/* =========================
+   Collapsible Sidebar (Full Screen Focus Mode)
+   ========================= */
+.sidebar {
+  transition: margin-left 0.25s ease, width 0.25s ease, opacity 0.2s ease;
+}
+
+.sidebar.collapsed {
+  margin-left: calc(-1 * var(--sidebar-width));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.desktop-only {
+  display: flex;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+  .mobile-only {
+    display: flex;
+  }
+}
+
+/* =========================
+   Text Selection Toolbar & Highlighting
+   ========================= */
+.selection-toolbar {
+  position: absolute;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 20px;
+  padding: 4px 12px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.color-options {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.color-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.color-btn:hover {
+  transform: scale(1.2);
+}
+
+.color-yellow { background-color: #fef08a; border-color: #fde047; }
+.color-green  { background-color: #bbf7d0; border-color: #86efac; }
+.color-blue   { background-color: #bfdbfe; border-color: #93c5fd; }
+.color-pink   { background-color: #fbcfe8; border-color: #f472b6; }
+
+.toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background-color: var(--border);
+}
+
+.toolbar-action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 12px;
+  transition: var(--transition);
+}
+
+.toolbar-action-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--accent);
+}
+
+.toolbar-action-btn .material-icons-round {
+  font-size: 16px;
+}
+
+/* User Highlight Marks */
+mark.user-highlight {
+  position: relative;
+  cursor: pointer;
+  border-radius: 2px;
+  padding: 2px 0;
+  transition: filter 0.15s ease;
+}
+
+mark.user-highlight:hover {
+  filter: brightness(0.92);
+}
+
+mark.highlight-yellow { background-color: #fef08a; color: inherit; }
+mark.highlight-green  { background-color: #bbf7d0; color: inherit; }
+mark.highlight-blue   { background-color: #bfdbfe; color: inherit; }
+mark.highlight-pink   { background-color: #fbcfe8; color: inherit; }
+
+mark.has-comment::after {
+  content: '💬';
+  font-size: 10px;
+  vertical-align: super;
+  margin-left: 2px;
+}
+
+/* =========================
+   Comment Popover Card (Google Docs/Sheets Style)
+   ========================= */
+.comment-popover {
+  position: absolute;
+  z-index: 1000;
+  width: 280px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 14px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.comment-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.comment-user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.comment-user .user-icon {
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.comment-user .user-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.icon-btn.sm {
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+}
+
+.icon-btn.sm .material-icons-round {
+  font-size: 16px;
+}
+
+.comment-text-content {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 12px;
+  word-break: break-word;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.secondary-btn.sm, .danger-btn.sm, .primary-btn.sm {
+  padding: 4px 10px;
+  font-size: 11px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.secondary-btn.sm {
+  background-color: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.secondary-btn.sm:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.danger-btn.sm {
+  background-color: transparent;
+  border: 1px solid var(--error);
+  color: var(--error);
+}
+
+.danger-btn.sm:hover {
+  background-color: var(--error-light);
+}
+
+.primary-btn.sm {
+  background-color: var(--accent);
+  border: none;
+  color: #ffffff;
+}
+
+.primary-btn.sm:hover {
+  background-color: var(--accent-hover);
+}
+
+.comment-form textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  resize: vertical;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.comment-form textarea:focus {
+  border-color: var(--accent);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }

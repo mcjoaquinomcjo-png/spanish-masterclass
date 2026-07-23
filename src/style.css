@@ -1568,3 +1568,120 @@ html.dark .vocab-box {
 .reference-list li {
   margin: 5px 0;
 }
+
+/* =========================
+   Lesson Discussion & Typography
+   ========================= */
+.discussion-block {
+  margin-bottom: 32px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.discussion-block h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent);
+}
+
+.discussion-block h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 20px 0 10px 0;
+}
+
+.book-style-paragraph {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+/* Translation Callout Cards — Textbook Red Accent Bar */
+.translation-group {
+  margin: 16px 0;
+  border-left: 4px solid #d93025;
+  background-color: var(--bg-secondary);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.translation-example {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.spanish-text {
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.english-text {
+  color: var(--text-secondary);
+  font-style: italic;
+  flex: 1;
+}
+
+.tts-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.tts-btn:hover {
+  color: var(--accent);
+  background-color: var(--accent-soft);
+}
+
+/* Tables inside lessons */
+.discussion-block table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 13px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.discussion-block th {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.discussion-block td {
+  padding: 10px 14px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--bg-tertiary);
+}
+
+.discussion-block tr:last-child td {
+  border-bottom: none;
+}

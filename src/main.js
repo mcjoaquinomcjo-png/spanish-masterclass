@@ -164,7 +164,7 @@ function detectSentenceLanguage(sentence) {
 
 function extractBilingualPairs(line) {
   if (!line || line.length < 20) return null;
-  const sentences = line.split(/(?<=[.!?])\s+/).filter(Boolean);
+  const sentences = line.replace(/([.!?])\s+/g, '$1|SPLIT|').split('|SPLIT|').filter(Boolean);
   if (sentences.length < 2) return [];
 
   const labels = sentences.map(detectSentenceLanguage);

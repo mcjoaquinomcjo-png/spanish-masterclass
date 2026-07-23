@@ -369,18 +369,36 @@ function formatLessonHTML(rawText) {
 }
 
 function renderTable(rows) {
-  let html = '<table>';
+  let html = '<table class="grammar-table">';
   let isFirst = true;
   for (const r of rows) {
-    const cols = r.split(/\t|\s{2,}/).filter(c => c.trim().length > 0);
-    html += '<tr>';
-    for (const c of cols) {
-      if (isFirst) {
-        html += `<th>${c}</th>`;
-      } else {
-        html += `<td>${c}</td>`;
-      }
+    let cols = r.split('\t');
+    if (cols.length < 2) {
+      cols = r.split(/\s{2,}/);
     }
+    
+    html += '<tr>';
+    cols.forEach((cell, idx) => {
+      const trimmed = cell.trim();
+      if (isFirst) {
+        // Table Header Row
+        if (trimmed.toUpperCase() === 'SINGULAR') {
+          html += `<th colspan="2" class="table-header">SINGULAR</th>`;
+        } else if (trimmed.toUpperCase() === 'PLURAL') {
+          html += `<th colspan="2" class="table-header">PLURAL</th>`;
+        } else if (trimmed) {
+          html += `<th>${trimmed}</th>`;
+        }
+      } else {
+        // Table Data Row (Alternating Spanish bold / English italic)
+        const isSpanish = (idx % 2 === 0);
+        if (isSpanish) {
+          html += `<td class="spanish-col"><strong>${trimmed}</strong></td>`;
+        } else {
+          html += `<td class="english-col"><em>${trimmed}</em></td>`;
+        }
+      }
+    });
     html += '</tr>';
     isFirst = false;
   }

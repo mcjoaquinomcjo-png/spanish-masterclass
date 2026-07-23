@@ -1655,33 +1655,43 @@ html.dark .vocab-box {
   background-color: var(--accent-soft);
 }
 
-/* Tables inside lessons */
-.discussion-block table {
+/* Tables inside lessons — PDF Textbook Style */
+.discussion-block table.grammar-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 16px 0;
-  font-size: 13px;
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+  margin: 20px 0;
+  font-size: 14px;
+  background-color: transparent;
+  border-top: 1px solid var(--text-primary);
+  border-bottom: 1px solid var(--text-primary);
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
 }
 
-.discussion-block th {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  font-weight: 600;
-  text-align: left;
-  padding: 10px 14px;
+.discussion-block th.table-header {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--border);
+  background-color: transparent;
 }
 
-.discussion-block td {
-  padding: 10px 14px;
+.discussion-block td.spanish-col {
+  font-weight: 600;
   color: var(--text-primary);
-  border-bottom: 1px solid var(--bg-tertiary);
+  padding: 8px 12px;
+  border-bottom: none;
+  width: 25%;
 }
 
-.discussion-block tr:last-child td {
+.discussion-block td.english-col {
+  font-style: italic;
+  color: var(--text-secondary);
+  padding: 8px 12px;
   border-bottom: none;
+  width: 25%;
 }

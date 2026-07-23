@@ -261,9 +261,10 @@ function formatLessonHTML(rawText) {
   }
 
   function isPronounTableLine(line) {
-    const l = line.toLowerCase();
-    if (l.includes('singular') && l.includes('plural')) return true;
-    return /^(yo|tú|tu|usted|ud\.?|él\/ella|él|ella|nosotros|nosotras|vosotros|vosotras|ustedes|uds\.?|ellos|ellas)\b/i.test(line);
+    const l = line.trim();
+    if (l.toUpperCase().includes('SINGULAR') && l.toUpperCase().includes('PLURAL')) return true;
+    // Match exact table rows where column 2 is an English subject pronoun (I, you, he, she, we, they)
+    return /^(yo|tú|tu|usted(\s+\(ud\.?\))?|él\/ella|él|ella|nosotros(,\s*-as)?|vosotros(,\s*-as)?|ustedes(\s+\(uds\.?\))?|ellos|ellas)\s*\t(I|you|he|she|we|they)\b/i.test(l);
   }
   
   for (let i = 0; i < lines.length; i++) {
@@ -282,7 +283,7 @@ function formatLessonHTML(rawText) {
     if (/^\d{1,3}$/.test(line)) continue;
     
     // Check if line looks like a conjugation/pronoun table row or table header
-    const tableRowRegex = /^(yo|tú|usted|él\/ella|nosotros|vosotros|ustedes|ellos\/ellas)\s+(\w+)\s+(\w+)?\s*(\w+)?/i;
+    const tableRowRegex = /^(yo|tú|usted|él\/ella|nosotros|vosotros|ustedes|ellos\/ellas)\t/i;
     const isTableHeader = line.toLowerCase().includes('to think') || 
                           line.toLowerCase().includes('to love') || 
                           line.toLowerCase().includes('to spend') || 
@@ -337,17 +338,23 @@ function formatLessonHTML(rawText) {
       const es = parts[0].trim();
       const en = parts[1].trim();
       if (!es.toLowerCase().includes('practice makes perfect') && !en.toLowerCase().includes('practice makes perfect')) {
-        flushParagraph();
+        // Do NOT flush translations here so consecutive examples stay grouped in one box!
+        if (paragraphBuffer.length > 0) {
+          html += `<p class="book-style-paragraph">${paragraphBuffer.join(' ')}</p>`;
+          paragraphBuffer = [];
+        }
         translationBuffer.push({ es, en });
         continue;
       }
     }
 
     // Detect bilingual lines that were collapsed into one sentence block:
-    // "Spanish... English..."
     const bilingualPairs = extractBilingualPairs(line);
     if (bilingualPairs.length > 0) {
-      flushParagraph();
+      if (paragraphBuffer.length > 0) {
+        html += `<p class="book-style-paragraph">${paragraphBuffer.join(' ')}</p>`;
+        paragraphBuffer = [];
+      }
       bilingualPairs.forEach(pair => {
         translationBuffer.push({ es: pair.es, en: pair.en });
       });
@@ -377,25 +384,27 @@ function renderTable(rows) {
       cols = r.split(/\s{2,}/);
     }
     
+    const isHeaderRow = isFirst && (r.toUpperCase().includes('SINGULAR') || r.toUpperCase().includes('PLURAL') || r.toLowerCase().includes('to '));
+    
     html += '<tr>';
     cols.forEach((cell, idx) => {
       const trimmed = cell.trim();
-      if (isFirst) {
+      if (isHeaderRow) {
         // Table Header Row
         if (trimmed.toUpperCase() === 'SINGULAR') {
           html += `<th colspan="2" class="table-header">SINGULAR</th>`;
         } else if (trimmed.toUpperCase() === 'PLURAL') {
           html += `<th colspan="2" class="table-header">PLURAL</th>`;
         } else if (trimmed) {
-          html += `<th>${trimmed}</th>`;
+          html += `<th class="table-header">${trimmed}</th>`;
         }
       } else {
-        // Table Data Row (Alternating Spanish bold / English italic)
+        // Table Data Row (Alternating Spanish / English)
         const isSpanish = (idx % 2 === 0);
         if (isSpanish) {
-          html += `<td class="spanish-col"><strong>${trimmed}</strong></td>`;
+          html += `<td class="spanish-col">${trimmed}</td>`;
         } else {
-          html += `<td class="english-col"><em>${trimmed}</em></td>`;
+          html += `<td class="english-col">${trimmed}</td>`;
         }
       }
     });

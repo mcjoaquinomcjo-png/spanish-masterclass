@@ -70,6 +70,10 @@
           </div>
 
           <div class="header-right">
+            <button id="toggle-comments-btn" class="icon-btn" aria-label="Notas y Comentarios" title="Ver notas y comentarios de este capítulo">
+              <span class="material-icons-round">comment</span>
+              <span id="comments-count-badge" class="comments-count-badge" style="display: none;">0</span>
+            </button>
             <button id="about-btn" class="icon-btn" aria-label="About app">
               <span class="material-icons-round">info</span>
             </button>
@@ -227,6 +231,20 @@
             <button id="cancel-comment-btn" class="secondary-btn sm">Cancelar</button>
             <button id="save-comment-btn" class="primary-btn sm">Guardar</button>
           </div>
+        </div>
+      <!-- Comments Side Drawer (Google Docs/Sheets Panel Style) -->
+      <div id="comments-drawer" class="comments-drawer">
+        <div class="drawer-header">
+          <div class="drawer-title">
+            <span class="material-icons-round">assignment</span>
+            <h3>Notas y Comentarios</h3>
+          </div>
+          <button id="close-comments-drawer" class="icon-btn sm" aria-label="Cerrar notas">
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <div id="comments-drawer-body" class="drawer-body">
+          <!-- Comments list rendered dynamically -->
         </div>
       </div>
     </div>
